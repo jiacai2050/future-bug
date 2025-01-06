@@ -1,5 +1,5 @@
 // Copyright 2019 TiKV Project Authors. Licensed under Apache-2.0.
-
+#[allow(deprecated)]
 use tracing::info;
 
 use std::sync::Arc;

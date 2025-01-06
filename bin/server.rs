@@ -24,7 +24,6 @@ use std::sync::Arc;
 #[derive(Clone)]
 struct GreeterService {
     pool: futures_cpupool::CpuPool,
-    use_pool: bool,
 }
 
 impl Greeter for GreeterService {
@@ -57,10 +56,9 @@ impl Greeter for GreeterService {
 fn main() {
     tracing_subscriber::fmt::init();
 
-    let use_pool = std::env::var("USE_POOL").map(|v| v == "1").unwrap_or(false);
     let env = Arc::new(Environment::new(1));
     let pool = Builder::new().pool_size(4).name_prefix("my-pool-").create();
-    let service = create_greeter(GreeterService { pool, use_pool });
+    let service = create_greeter(GreeterService { pool });
     let addr = "127.0.0.1:50051";
 
     let quota = ResourceQuota::new(Some("HelloServerQuota")).resize_memory(1024 * 1024);

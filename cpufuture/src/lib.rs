@@ -36,7 +36,8 @@
 
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
-
+#[allow(deprecated)]
+#[allow(bare_trait_objects)]
 extern crate futures;
 extern crate num_cpus;
 

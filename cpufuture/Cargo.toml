@@ -1,0 +1,21 @@
+
+[package]
+name = "futures-cpupool"
+version = "0.1.8"
+authors = ["Alex Crichton <alex@alexcrichton.com>"]
+description = "An implementation of thread pools which hand out futures to the results of the\ncomputation on the threads themselves.\n"
+homepage = "https://github.com/alexcrichton/futures-rs"
+documentation = "https://docs.rs/futures-cpupool"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/alexcrichton/futures-rs"
+[dependencies.futures]
+version = "0.1"
+features = ["use_std"]
+default-features = false
+
+[dependencies.num_cpus]
+version = "1.0"
+
+[features]
+default = ["with-deprecated"]
+with-deprecated = ["futures/with-deprecated"]

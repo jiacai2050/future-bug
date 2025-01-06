@@ -24,7 +24,18 @@ futures-util = { version = "0.3", features = ["sink"] }
 protobuf = { version = "2", optional = false }
 future01 = { package = "futures", version = "0.1" }
 future03 = { package = "futures", version = "0.3", features= ["compat"] }
+futures-cpupool = { path = "./cpufuture"}
 
+[workspace]
+resolver = "2"
+members = [
+"." ,
+"cpufuture"
+]
+
+[profile.release]
+debug = true
+debug-assertions = false
 
 [[bin]]
 name = "server"

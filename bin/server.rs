@@ -1,7 +1,8 @@
+mod ten_polls;
 use std::io::Read;
-use std::sync::Arc;
 use std::{io, thread};
 
+use futures_cpupool::Builder;
 use tracing::error;
 use tracing::info;
 use tracing_subscriber;
@@ -16,23 +17,37 @@ use grpcio::{
 
 use demo::helloworld::{HelloReply, HelloRequest};
 use demo::helloworld_grpc::{create_greeter, Greeter};
+use future01::Future;
 use future03::compat::Future01CompatExt;
+use std::sync::Arc;
 
 #[derive(Clone)]
-struct GreeterService;
+struct GreeterService {
+    pool: futures_cpupool::CpuPool,
+    use_pool: bool,
+}
 
 impl Greeter for GreeterService {
     fn say_hello(&mut self, ctx: RpcContext<'_>, req: HelloRequest, sink: UnarySink<HelloReply>) {
-        let msg = format!("Hello {}", req.name);
-        let f01 = future01::future::ok::<String, String>(msg);
-        // ctx.spawn(f)
+        let f01 = self.pool.spawn_fn(move || {
+            let f = ten_polls::TenPolls::new(req.name.clone());
+            Box::new(f)
+        });
+        // let f = Box::new(ten_polls::TenPolls::new(req.name.clone()));
+        // let f01 = self.pool.spawn(f);
+        // let f01 = {
+        //     info!("Create future directly");
+        //     let f = ten_polls::TenPolls::new(req.name.clone());
+        //     Box::new(f)
+        // };
+
         ctx.spawn(async move {
             let r = f01.compat().await.unwrap();
 
             let mut resp = HelloReply::default();
             resp.message = r;
             sink.success(resp)
-                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e))
+                .map_err(move |e| error!("failed to reply {:?}", e))
                 .map(|_| ())
                 .await;
         })
@@ -42,8 +57,10 @@ impl Greeter for GreeterService {
 fn main() {
     tracing_subscriber::fmt::init();
 
+    let use_pool = std::env::var("USE_POOL").map(|v| v == "1").unwrap_or(false);
     let env = Arc::new(Environment::new(1));
-    let service = create_greeter(GreeterService);
+    let pool = Builder::new().pool_size(4).name_prefix("my-pool-").create();
+    let service = create_greeter(GreeterService { pool, use_pool });
     let addr = "127.0.0.1:50051";
 
     let quota = ResourceQuota::new(Some("HelloServerQuota")).resize_memory(1024 * 1024);

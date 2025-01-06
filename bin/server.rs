@@ -16,6 +16,7 @@ use grpcio::{
 
 use demo::helloworld::{HelloReply, HelloRequest};
 use demo::helloworld_grpc::{create_greeter, Greeter};
+use future03::compat::Future01CompatExt;
 
 #[derive(Clone)]
 struct GreeterService;
@@ -23,13 +24,18 @@ struct GreeterService;
 impl Greeter for GreeterService {
     fn say_hello(&mut self, ctx: RpcContext<'_>, req: HelloRequest, sink: UnarySink<HelloReply>) {
         let msg = format!("Hello {}", req.name);
-        let mut resp = HelloReply::default();
-        resp.message = msg;
-        let f = sink
-            .success(resp)
-            .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e))
-            .map(|_| ());
-        ctx.spawn(f)
+        let f01 = future01::future::ok::<String, String>(msg);
+        // ctx.spawn(f)
+        ctx.spawn(async move {
+            let r = f01.compat().await.unwrap();
+
+            let mut resp = HelloReply::default();
+            resp.message = r;
+            sink.success(resp)
+                .map_err(move |e| error!("failed to reply {:?}: {:?}", req, e))
+                .map(|_| ())
+                .await;
+        })
     }
 }
 

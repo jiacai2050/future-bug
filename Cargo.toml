@@ -22,6 +22,8 @@ futures-channel = { version = "0.3", features = ["sink"] }
 futures-executor = "0.3"
 futures-util = { version = "0.3", features = ["sink"] }
 protobuf = { version = "2", optional = false }
+future01 = { package = "futures", version = "0.1" }
+future03 = { package = "futures", version = "0.3", features= ["compat"] }
 
 
 [[bin]]

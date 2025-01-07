@@ -7,15 +7,10 @@ edition = "2021"
 [dependencies]
 future01 = { package = "futures", version = "0.1" }
 future03 = { package = "futures", version = "0.3", features = ["compat"] }
-futures-channel = { version = "0.3", features = ["sink"] }
 futures-cpupool = { path = "./cpufuture" }
-futures-executor = "0.3"
-futures-util = { version = "0.3", features = ["sink"] }
-grpcio = { version = "0.13", default-features = false, features = [
-"protobuf-codec"] }
-protobuf = { version = "2", optional = false }
 tracing = "0.1"
 tracing-subscriber = "0.3"
+tokio = { version = "1", features = ["full"] }
 
 [workspace]
 resolver = "2"
@@ -24,11 +19,3 @@ members = [".", "cpufuture"]
 [profile.release]
 debug = true
 debug-assertions = false
-
-[[bin]]
-name = "server"
-path = "bin/server.rs"
-
-[[bin]]
-name = "client"
-path = "bin/client.rs"

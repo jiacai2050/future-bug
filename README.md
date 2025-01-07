@@ -6,10 +6,11 @@ The cpufuture in this repo is [futures-cpupool 0.1.8](https://docs.rs/crate/futu
 ## How to reproduce
 
 ```
-cargo run --release
+cargo build --release
+gdb ./target/release/demo
 ```
 
-When running in release mode, following errors will be thrown:
+Then following errors will be thrown:
 
 ```
 Got msg
